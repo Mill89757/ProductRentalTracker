@@ -1,0 +1,15 @@
+{
+  "hosting": [{
+    "site": "product-rental-tracker",
+    "source": ".",
+    "ignore": [
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
+  }]
+}
+
+
