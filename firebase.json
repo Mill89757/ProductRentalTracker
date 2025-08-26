@@ -1,6 +1,6 @@
 {
   "hosting": [{
-    "site": "product-rental-tracker",
+    "site": "productrentaltracker",
     "source": ".",
     "ignore": [
       "**/.*",
