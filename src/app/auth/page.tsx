@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn, signUp } from '@/lib/firebase/auth';
+import { signIn } from '@/lib/firebase/auth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useForm } from 'react-hook-form';
@@ -18,7 +18,7 @@ const authSchema = z.object({
 type AuthFormData = z.infer<typeof authSchema>;
 
 export default function AuthPage() {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState('');
   const router = useRouter();
@@ -37,9 +37,7 @@ export default function AuthPage() {
     setAuthError('');
 
     try {
-      const { user, error } = isSignUp 
-        ? await signUp(data.email, data.password)
-        : await signIn(data.email, data.password);
+      const { user, error } = await signIn(data.email, data.password);
 
       if (error) {
         setAuthError(error);
@@ -54,7 +52,7 @@ export default function AuthPage() {
   };
 
   const toggleMode = () => {
-    setIsSignUp(!isSignUp);
+    // Sign up is disabled by requirement; keep sign-in only
     setAuthError('');
     reset();
   };
@@ -71,9 +69,7 @@ export default function AuthPage() {
           <h2 className="text-3xl font-bold text-gray-900">
             Staff Product Rental Tracker
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            {isSignUp ? 'Create your account' : 'Sign in to your account'}
-          </p>
+          <p className="mt-2 text-sm text-gray-600">Sign in to your account</p>
         </div>
 
         <div className="bg-white py-8 px-6 shadow-lg rounded-lg">
@@ -106,34 +102,11 @@ export default function AuthPage() {
               loading={loading}
               disabled={loading}
             >
-              {isSignUp ? 'Create Account' : 'Sign In'}
+              Sign In
             </Button>
           </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or</span>
-              </div>
-            </div>
-
-            <div className="mt-6 text-center">
-              <button
-                type="button"
-                onClick={toggleMode}
-                className="text-blue-600 hover:text-blue-500 font-medium"
-                disabled={loading}
-              >
-                {isSignUp 
-                  ? 'Already have an account? Sign in' 
-                  : "Don't have an account? Sign up"
-                }
-              </button>
-            </div>
-          </div>
+          {/* Sign up and mode toggle removed as accounts are manually created */}
         </div>
 
         <div className="text-center text-xs text-gray-500">
