@@ -76,6 +76,32 @@ export default function RentalsPage() {
         </Button>
       </div>
 
+      {/* Summary Stats */}
+      {rentals.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+          <Card className="p-6 text-center">
+            <div className="text-2xl font-bold text-blue-600 mb-2">
+              {rentals.filter(r => r.status === 'Active').length}
+            </div>
+            <div className="text-sm text-gray-600">Active Rentals</div>
+          </Card>
+          
+          <Card className="p-6 text-center">
+            <div className="text-2xl font-bold text-red-600 mb-2">
+              {rentals.filter(r => r.status === 'Active' && isOverdue(r.dueDate, r.status)).length}
+            </div>
+            <div className="text-sm text-gray-600">Overdue Items</div>
+          </Card>
+          
+          <Card className="p-6 text-center">
+            <div className="text-2xl font-bold text-green-600 mb-2">
+              {rentals.filter(r => r.status === 'Returned').length}
+            </div>
+            <div className="text-sm text-gray-600">Returned Items</div>
+          </Card>
+        </div>
+      )}
+
       {/* Rentals List */}
       {rentals.length === 0 ? (
         <Card className="p-12 text-center">
@@ -157,31 +183,7 @@ export default function RentalsPage() {
         </div>
       )}
 
-      {/* Summary Stats */}
-      {rentals.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          <Card className="p-6 text-center">
-            <div className="text-2xl font-bold text-blue-600 mb-2">
-              {rentals.filter(r => r.status === 'Active').length}
-            </div>
-            <div className="text-sm text-gray-600">Active Rentals</div>
-          </Card>
-          
-          <Card className="p-6 text-center">
-            <div className="text-2xl font-bold text-red-600 mb-2">
-              {rentals.filter(r => r.status === 'Active' && isOverdue(r.dueDate, r.status)).length}
-            </div>
-            <div className="text-sm text-gray-600">Overdue Items</div>
-          </Card>
-          
-          <Card className="p-6 text-center">
-            <div className="text-2xl font-bold text-green-600 mb-2">
-              {rentals.filter(r => r.status === 'Returned').length}
-            </div>
-            <div className="text-sm text-gray-600">Returned Items</div>
-          </Card>
-        </div>
-      )}
+
     </div>
   );
 }

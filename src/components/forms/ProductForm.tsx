@@ -47,7 +47,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card className="w-full max-w-3xl mx-auto">
       <CardHeader>
         <CardTitle>{isEdit ? 'Edit Product' : 'Add New Product'}</CardTitle>
       </CardHeader>
@@ -56,14 +56,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="Product Name"
-              placeholder="e.g., Wireless Mouse"
+              placeholder="e.g., DJI Mavic 3 Pro"
               error={errors.name?.message}
               {...register('name')}
             />
             
             <Input
               label="SKU"
-              placeholder="e.g., MS123"
+              placeholder="e.g., DJI-MAVIC3PRO"
               error={errors.sku?.message}
               {...register('sku')}
             />
@@ -71,7 +71,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
           <Input
             label="Description"
-            placeholder="e.g., Ergonomic mouse for demo use"
+            placeholder="e.g., Flagship DJI drone with triple-camera system"
             error={errors.description?.message}
             {...register('description')}
           />
@@ -79,14 +79,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="Serial Number"
-              placeholder="e.g., 23RHUFI2389HFSD"
+              placeholder="e.g., DJIAU-MV3P-0010"
               error={errors.serialNumber?.message}
               {...register('serialNumber')}
             />
             
             <Input
               label="Store Location"
-              placeholder="e.g., CAR"
+              placeholder="e.g., SYD"
               error={errors.storeLocation?.message}
               {...register('storeLocation')}
             />

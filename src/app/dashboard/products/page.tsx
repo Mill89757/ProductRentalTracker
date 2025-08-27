@@ -52,9 +52,9 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-none">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Products</h1>
           <p className="text-gray-600 mt-2">Manage your product inventory</p>
@@ -96,57 +96,61 @@ export default function ProductsPage() {
           </div>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <Card key={product.id} className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-2">SKU: {product.sku}</p>
-                  <p className="text-sm text-gray-500 mb-3">{product.description}</p>
-                </div>
-                <Badge 
-                  variant={product.status === 'Available' ? 'success' : 'warning'}
-                >
-                  {product.status}
-                </Badge>
-              </div>
+        <div className="flex-1 min-h-0">
+          <div className="h-full overflow-y-auto pr-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <Card key={product.id} className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        {product.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-2">SKU: {product.sku}</p>
+                      <p className="text-sm text-gray-500 mb-3">{product.description}</p>
+                    </div>
+                    <Badge 
+                      variant={product.status === 'Available' ? 'success' : 'warning'}
+                    >
+                      {product.status}
+                    </Badge>
+                  </div>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Serial:</span>
-                  <span className="text-gray-900 font-mono">{product.serialNumber}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Location:</span>
-                  <span className="text-gray-900">{product.storeLocation}</span>
-                </div>
-              </div>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Serial:</span>
+                      <span className="text-gray-900 font-mono">{product.serialNumber}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Location:</span>
+                      <span className="text-gray-900">{product.storeLocation}</span>
+                    </div>
+                  </div>
 
-              <div className="flex gap-2 pt-4 border-t border-gray-200">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => router.push(`/dashboard/products/edit/${product.id}`)}
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => handleDelete(product.id)}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Delete
-                </Button>
-              </div>
-            </Card>
-          ))}
+                  <div className="flex gap-2 pt-4 border-t border-gray-200">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => router.push(`/dashboard/products/edit/${product.id}`)}
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => handleDelete(product.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>

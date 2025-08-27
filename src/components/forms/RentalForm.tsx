@@ -85,7 +85,7 @@ export const RentalForm: React.FC<RentalFormProps> = ({
   }));
 
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card className="w-full max-w-3xl mx-auto">
       <CardHeader>
         <CardTitle>Book Out Product</CardTitle>
       </CardHeader>
@@ -121,14 +121,14 @@ export const RentalForm: React.FC<RentalFormProps> = ({
 
           <Input
             label="Staff Name"
-            placeholder="e.g., John Doe"
+            placeholder="e.g., Alex Thompson"
             error={errors.staffName?.message}
             {...register('staffName')}
           />
 
           <Input
             label="Store Location"
-            placeholder="e.g., CAR"
+            placeholder="e.g., SYD"
             error={errors.storeLocation?.message}
             {...register('storeLocation')}
           />

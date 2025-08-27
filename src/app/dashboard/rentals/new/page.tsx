@@ -44,17 +44,19 @@ export default function NewRentalPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Book Out Product</h1>
         <p className="text-gray-600 mt-2">Rent a product to a staff member</p>
       </div>
 
-      <RentalForm
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        loading={loading}
-      />
+      <div className="flex-1 flex items-center justify-center">
+        <RentalForm
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          loading={loading}
+        />
+      </div>
     </div>
   );
 }
