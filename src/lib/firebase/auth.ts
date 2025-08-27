@@ -1,4 +1,4 @@
-// Hardcoded authentication system
+// Hardcoded authentication system with localStorage persistence
 export interface User {
   uid: string;
   email: string;
@@ -9,9 +9,28 @@ const VALID_CREDENTIALS: Record<string, string> = {
   'yushuguo89757@gmail.com': '123456'
 };
 
+const STORAGE_KEY = 'prt_auth_email';
+
 // Simulate user state
 let currentUser: User | null = null;
 let authStateCallbacks: ((user: User | null) => void)[] = [];
+
+function isBrowser() {
+  return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+}
+
+function loadUserFromStorage() {
+  if (!isBrowser()) return;
+  const email = localStorage.getItem(STORAGE_KEY);
+  if (email && VALID_CREDENTIALS[email]) {
+    currentUser = { uid: 'dummy-uid-123', email };
+  } else {
+    currentUser = null;
+  }
+}
+
+// Load once on module import
+loadUserFromStorage();
 
 export const signIn = async (email: string, password: string) => {
   try {
@@ -21,7 +40,9 @@ export const signIn = async (email: string, password: string) => {
         uid: 'dummy-uid-123',
         email: email
       };
-      
+      if (isBrowser()) {
+        localStorage.setItem(STORAGE_KEY, email);
+      }
       // Notify all auth state listeners
       authStateCallbacks.forEach(callback => callback(currentUser));
       
@@ -42,7 +63,9 @@ export const signUp = async (email: string, password: string) => {
 export const signOut = async () => {
   try {
     currentUser = null;
-    
+    if (isBrowser()) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
     // Notify all auth state listeners
     authStateCallbacks.forEach(callback => callback(null));
     
@@ -53,6 +76,8 @@ export const signOut = async () => {
 };
 
 export const onAuthStateChange = (callback: (user: User | null) => void) => {
+  // Ensure we always reflect storage before subscribing
+  loadUserFromStorage();
   authStateCallbacks.push(callback);
   
   // Immediately call with current state

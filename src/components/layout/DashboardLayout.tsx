@@ -13,7 +13,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       <div className="flex">
         <Sidebar />
         <main className="flex-1">
-          <div className="p-8">
+          <div className="p-8 h-screen overflow-hidden">
             {children}
           </div>
         </main>
