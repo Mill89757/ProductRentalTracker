@@ -9,11 +9,19 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { Plus, Edit, Trash2, Package } from 'lucide-react';
+import { DashboardFilters, FilterState } from '@/components/dashboard/DashboardFilters';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    dateRange: { startDate: '', endDate: '' },
+    location: '',
+    status: '',
+    search: ''
+  });
   const router = useRouter();
 
   useEffect(() => {
@@ -24,6 +32,7 @@ export default function ProductsPage() {
     setLoading(true);
     const data = await productService.getAll();
     setProducts(data);
+    setFilteredProducts(data);
     setLoading(false);
   };
 
@@ -42,6 +51,33 @@ export default function ProductsPage() {
       }
     }
   };
+
+  const applyFilters = (newFilters: FilterState) => {
+    let next = [...products];
+
+    if (newFilters.location) {
+      next = next.filter(p => p.storeLocation === newFilters.location);
+    }
+
+    if (newFilters.status) {
+      next = next.filter(p => p.status === newFilters.status);
+    }
+
+    if (newFilters.search) {
+      const q = newFilters.search.toLowerCase();
+      next = next.filter(p => p.name.toLowerCase().includes(q));
+    }
+
+    // Date filter is not applicable to products list currently
+    setFilteredProducts(next);
+  };
+
+  const handleFilterChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+    applyFilters(newFilters);
+  };
+
+  const uniqueLocations = [...new Set(products.map(p => p.storeLocation))].sort();
 
   if (loading) {
     return (
@@ -78,6 +114,20 @@ export default function ProductsPage() {
         </div>
       </div>
 
+      {/* Filters */}
+      {products.length > 0 && (
+        <DashboardFilters
+          onFilterChange={handleFilterChange}
+          locations={uniqueLocations}
+          loading={loading}
+          showDateRange={false}
+          statusOptions={[
+            { value: 'Available', label: 'Available' },
+            { value: 'Rented Out', label: 'Rented Out' },
+          ]}
+        />
+      )}
+
       {/* Products Grid */}
       {products.length === 0 ? (
         <Card className="p-12 text-center">
@@ -99,7 +149,7 @@ export default function ProductsPage() {
         <div className="flex-1 min-h-0">
           <div className="h-full overflow-y-auto pr-1">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <Card key={product.id} className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">

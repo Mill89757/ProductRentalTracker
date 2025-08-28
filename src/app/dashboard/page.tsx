@@ -12,7 +12,6 @@ import { LocationDistributionChart } from '@/components/charts/LocationDistribut
 import { RentalTrendsChart } from '@/components/charts/RentalTrendsChart';
 import { InsightsPanel } from '@/components/dashboard/InsightsPanel';
 import { OverdueAlerts } from '@/components/dashboard/OverdueAlerts';
-import { DashboardFilters, FilterState } from '@/components/dashboard/DashboardFilters';
 
 export default function Dashboard() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -20,11 +19,6 @@ export default function Dashboard() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [filteredRentals, setFilteredRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<FilterState>({
-    dateRange: { startDate: '', endDate: '' },
-    location: '',
-    status: ''
-  });
   const router = useRouter();
 
   useEffect(() => {
@@ -42,49 +36,6 @@ export default function Dashboard() {
     setFilteredProducts(productsData);
     setFilteredRentals(rentalsData);
     setLoading(false);
-  };
-
-  const applyFilters = (newFilters: FilterState) => {
-    let filteredProd = [...products];
-    let filteredRent = [...rentals];
-
-    // Apply location filter
-    if (newFilters.location) {
-      filteredProd = filteredProd.filter(p => p.storeLocation === newFilters.location);
-      filteredRent = filteredRent.filter(r => r.storeLocation === newFilters.location);
-    }
-
-    // Apply status filter
-    if (newFilters.status) {
-      if (newFilters.status === 'Overdue') {
-        filteredRent = filteredRent.filter(r => r.status === 'Active' && new Date() > r.dueDate);
-      } else if (newFilters.status === 'Active') {
-        filteredRent = filteredRent.filter(r => r.status === 'Active');
-      } else if (newFilters.status === 'Returned') {
-        filteredRent = filteredRent.filter(r => r.status === 'Returned');
-      } else {
-        filteredProd = filteredProd.filter(p => p.status === newFilters.status);
-      }
-    }
-
-    // Apply date range filter
-    if (newFilters.dateRange.startDate || newFilters.dateRange.endDate) {
-      const startDate = newFilters.dateRange.startDate ? new Date(newFilters.dateRange.startDate) : new Date('1970-01-01');
-      const endDate = newFilters.dateRange.endDate ? new Date(newFilters.dateRange.endDate) : new Date();
-      
-      filteredRent = filteredRent.filter(r => {
-        const rentalDate = r.rentalDate;
-        return rentalDate >= startDate && rentalDate <= endDate;
-      });
-    }
-
-    setFilteredProducts(filteredProd);
-    setFilteredRentals(filteredRent);
-  };
-
-  const handleFilterChange = (newFilters: FilterState) => {
-    setFilters(newFilters);
-    applyFilters(newFilters);
   };
 
   const handleReturnItem = async (rental: Rental) => {
@@ -146,9 +97,6 @@ export default function Dashboard() {
     status: new Date() > rental.dueDate ? 'overdue' : 'active',
   }));
 
-  // Get unique locations for filter
-  const uniqueLocations = [...new Set(products.map(p => p.storeLocation))].sort();
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-64">
@@ -175,13 +123,6 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto space-y-6">
-        {/* Filters */}
-        <DashboardFilters
-          onFilterChange={handleFilterChange}
-          locations={uniqueLocations}
-          loading={loading}
-        />
-
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat) => (

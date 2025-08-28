@@ -8,10 +8,18 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Plus, Calendar, User, Package, ArrowLeft } from 'lucide-react';
+import { DashboardFilters, FilterState } from '@/components/dashboard/DashboardFilters';
 
 export default function RentalsPage() {
   const [rentals, setRentals] = useState<Rental[]>([]);
+  const [filteredRentals, setFilteredRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState<FilterState>({
+    dateRange: { startDate: '', endDate: '' },
+    location: '',
+    status: '',
+    search: ''
+  });
   const router = useRouter();
 
   useEffect(() => {
@@ -22,6 +30,7 @@ export default function RentalsPage() {
     setLoading(true);
     const data = await rentalService.getAll();
     setRentals(data);
+    setFilteredRentals(sortRentalsList(data));
     setLoading(false);
   };
 
@@ -54,6 +63,69 @@ export default function RentalsPage() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
+  const sortRentalsList = (items: Rental[]) => {
+    return [...items].sort((a, b) => {
+      const group = (r: Rental) => {
+        if (isOverdue(r.dueDate, r.status)) return 0; // Overdue
+        if (r.status === 'Active') return 1; // Active
+        return 2; // Returned
+      };
+
+      const ga = group(a);
+      const gb = group(b);
+      if (ga !== gb) return ga - gb;
+
+      if (ga === 0 || ga === 1) {
+        // For overdue and active, earliest due date first
+        return a.dueDate.getTime() - b.dueDate.getTime();
+      }
+
+      // For returned, most recently returned first
+      if (a.returnDate && b.returnDate) return b.returnDate.getTime() - a.returnDate.getTime();
+      if (a.returnDate && !b.returnDate) return -1;
+      if (!a.returnDate && b.returnDate) return 1;
+      return 0;
+    });
+  };
+
+  const applyFilters = (newFilters: FilterState) => {
+    let next = [...rentals];
+
+    if (newFilters.location) {
+      next = next.filter(r => r.storeLocation === newFilters.location);
+    }
+
+    if (newFilters.status) {
+      if (newFilters.status === 'Overdue') {
+        next = next.filter(r => r.status === 'Active' && new Date() > r.dueDate);
+      } else if (newFilters.status === 'Active') {
+        next = next.filter(r => r.status === 'Active');
+      } else if (newFilters.status === 'Returned') {
+        next = next.filter(r => r.status === 'Returned');
+      }
+    }
+
+    if (newFilters.dateRange.startDate || newFilters.dateRange.endDate) {
+      const startDate = newFilters.dateRange.startDate ? new Date(newFilters.dateRange.startDate) : new Date('1970-01-01');
+      const endDate = newFilters.dateRange.endDate ? new Date(newFilters.dateRange.endDate) : new Date();
+      next = next.filter(r => r.rentalDate >= startDate && r.rentalDate <= endDate);
+    }
+
+    if (newFilters.search) {
+      const q = newFilters.search.toLowerCase();
+      next = next.filter(r => r.productName.toLowerCase().includes(q));
+    }
+
+    setFilteredRentals(sortRentalsList(next));
+  };
+
+  const handleFilterChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+    applyFilters(newFilters);
+  };
+
+  const uniqueLocations = [...new Set(rentals.map(r => r.storeLocation))].sort();
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-64">
@@ -63,7 +135,7 @@ export default function RentalsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -76,30 +148,45 @@ export default function RentalsPage() {
         </Button>
       </div>
 
-      {/* Summary Stats */}
+      {/* Summary Stats (compact) */}
       {rentals.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          <Card className="p-6 text-center">
-            <div className="text-2xl font-bold text-blue-600 mb-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+            <div className="text-sm text-gray-600">Active Rentals</div>
+            <div className="text-xl font-semibold text-green-600">
               {rentals.filter(r => r.status === 'Active').length}
             </div>
-            <div className="text-sm text-gray-600">Active Rentals</div>
-          </Card>
-          
-          <Card className="p-6 text-center">
-            <div className="text-2xl font-bold text-red-600 mb-2">
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+            <div className="text-sm text-gray-600">Overdue Items</div>
+            <div className="text-xl font-semibold text-red-600">
               {rentals.filter(r => r.status === 'Active' && isOverdue(r.dueDate, r.status)).length}
             </div>
-            <div className="text-sm text-gray-600">Overdue Items</div>
-          </Card>
-          
-          <Card className="p-6 text-center">
-            <div className="text-2xl font-bold text-green-600 mb-2">
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+            <div className="text-sm text-gray-600">Returned Items</div>
+            <div className="text-xl font-semibold text-gray-600">
               {rentals.filter(r => r.status === 'Returned').length}
             </div>
-            <div className="text-sm text-gray-600">Returned Items</div>
-          </Card>
+          </div>
         </div>
+      )}
+
+      {/* Filters */}
+      {rentals.length > 0 && (
+        <DashboardFilters
+          onFilterChange={handleFilterChange}
+          locations={uniqueLocations}
+          loading={loading}
+          showDateRange={true}
+          statusOptions={[
+            { value: 'Active', label: 'Active' },
+            { value: 'Overdue', label: 'Overdue' },
+            { value: 'Returned', label: 'Returned' },
+          ]}
+        />
       )}
 
       {/* Rentals List */}
@@ -114,9 +201,10 @@ export default function RentalsPage() {
           </Button>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {rentals.map((rental) => (
-            <Card key={rental.id} className="p-6">
+        <div className="flex-1 min-h-0">
+          <div className="h-full overflow-y-auto pr-1 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredRentals.map((rental) => (
+              <Card key={rental.id} className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -178,8 +266,9 @@ export default function RentalsPage() {
                   Mark as Returned
                 </Button>
               )}
-            </Card>
-          ))}
+              </Card>
+            ))}
+          </div>
         </div>
       )}
 
