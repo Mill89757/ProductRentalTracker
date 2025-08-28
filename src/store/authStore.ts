@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { User as AppUser } from '@/lib/firebase/auth';
+import type { User as AppUser } from 'firebase/auth';
 import { onAuthStateChange } from '@/lib/firebase/auth';
 
 interface AuthState {
