@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { productService } from '@/lib/firebase/firestore';
-import { seedDatabase } from '@/lib/firebase/seedData';
 import { Product } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -15,7 +14,6 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [seeding, setSeeding] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     dateRange: { startDate: '', endDate: '' },
     location: '',
@@ -34,13 +32,6 @@ export default function ProductsPage() {
     setProducts(data);
     setFilteredProducts(data);
     setLoading(false);
-  };
-
-  const handleSeedData = async () => {
-    setSeeding(true);
-    await seedDatabase();
-    await loadProducts();
-    setSeeding(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -96,17 +87,6 @@ export default function ProductsPage() {
           <p className="text-gray-600 mt-2">Manage your product inventory</p>
         </div>
         <div className="flex gap-3">
-          {products.length === 0 && (
-            <Button
-              variant="outline"
-              onClick={handleSeedData}
-              loading={seeding}
-              disabled={seeding}
-            >
-              <Package className="h-4 w-4 mr-2" />
-              Seed Demo Data
-            </Button>
-          )}
           <Button onClick={() => router.push('/dashboard/products/new')}>
             <Plus className="h-4 w-4 mr-2" />
             Add Product
@@ -135,10 +115,6 @@ export default function ProductsPage() {
           <h3 className="text-lg font-medium text-gray-900 mb-2">No products yet</h3>
           <p className="text-gray-600 mb-6">Get started by adding your first product or loading demo data</p>
           <div className="flex gap-3 justify-center">
-            <Button onClick={handleSeedData} loading={seeding} disabled={seeding}>
-              <Package className="h-4 w-4 mr-2" />
-              Load Demo Data
-            </Button>
             <Button variant="outline" onClick={() => router.push('/dashboard/products/new')}>
               <Plus className="h-4 w-4 mr-2" />
               Add Product
