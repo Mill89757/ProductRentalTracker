@@ -107,7 +107,9 @@ export default function ProductsPage() {
                         {product.name}
                       </h3>
                       <p className="text-sm text-gray-600 mb-2">SKU: {product.sku}</p>
-                      <p className="text-sm text-gray-500 mb-3">{product.description}</p>
+                      <p className="text-sm text-gray-500 mb-3 min-h-[3.25rem] overflow-hidden">
+                        {product.description}
+                      </p>
                     </div>
                     <Badge 
                       variant={product.status === 'Available' ? 'success' : 'warning'}
