@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { User } from 'firebase/auth';
+import type { User as AppUser } from 'firebase/auth';
 import { onAuthStateChange } from '@/lib/firebase/auth';
 
 interface AuthState {
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
-  setUser: (user: User | null) => void;
+  setUser: (user: AppUser | null) => void;
   setLoading: (loading: boolean) => void;
   initialize: () => void;
 }

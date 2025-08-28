@@ -1,16 +1,18 @@
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut as firebaseSignOut,
-  User,
-  onAuthStateChanged
-} from 'firebase/auth';
 import { auth } from './config';
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  createUserWithEmailAndPassword,
+  type User
+} from 'firebase/auth';
+
+export type { User };
 
 export const signIn = async (email: string, password: string) => {
   try {
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    return { user: result.user, error: null };
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    return { user: cred.user, error: null };
   } catch (error) {
     return { user: null, error: (error as Error).message };
   }
@@ -18,8 +20,8 @@ export const signIn = async (email: string, password: string) => {
 
 export const signUp = async (email: string, password: string) => {
   try {
-    const result = await createUserWithEmailAndPassword(auth, email, password);
-    return { user: result.user, error: null };
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    return { user: cred.user, error: null };
   } catch (error) {
     return { user: null, error: (error as Error).message };
   }
@@ -37,3 +39,5 @@ export const signOut = async () => {
 export const onAuthStateChange = (callback: (user: User | null) => void) => {
   return onAuthStateChanged(auth, callback);
 };
+
+export const getCurrentUser = () => auth.currentUser;
